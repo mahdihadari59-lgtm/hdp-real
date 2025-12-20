@@ -1,0 +1,6 @@
+{
+    "success": false,
+    "error": "Internal server error",
+    "code": 500,
+    "timestamp": "<?php echo date('Y-m-d H:i:s'); ?>"
+}

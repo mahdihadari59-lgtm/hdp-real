@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تست HDP</title>
+    <style>
+        body { font-family: Tahoma; padding: 20px; background: #0c2461; color: white; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 10px 0; }
+        button { background: #00ff88; color: #0c2461; border: none; padding: 10px 20px; border-radius: 5px; margin: 5px; cursor: pointer; }
+        .result { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; margin-top: 10px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 تست سیستم HDP</h1>
+        
+        <div class="card">
+            <h3>🔗 وضعیت اتصال:</h3>
+            <p>Frontend: <span id="frontend-status">✅ در حال اجرا</span></p>
+            <p>Backend: <span id="backend-status">در حال بررسی...</span></p>
+        </div>
+        
+        <div class="card">
+            <h3>📡 تست API‌ها:</h3>
+            <button onclick="testApi('health')">🔧 وضعیت سیستم</button>
+            <button onclick="testApi('stats')">📊 آمار</button>
+            <button onclick="testApi('drivers')">🚗 رانندگان</button>
+            <button onclick="testApi('map/drivers')">🗺️ موقعیت‌ها</button>
+            <button onclick="testApi('ai/predict')">🤖 پیش‌بینی AI</button>
+        </div>
+        
+        <div class="card">
+            <h3>📝 نتیجه تست:</h3>
+            <div id="result" class="result">در انتظار تست...</div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        
+        // تست وضعیت Backend
+        async function checkBackend() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                document.getElementById('backend-status').innerHTML = 
+                    `✅ فعال (نسخه: ${data.version})`;
+            } catch (error) {
+                document.getElementById('backend-status').innerHTML = 
+                    `❌ خطا: ${error.message}`;
+            }
+        }
+        
+        // تست API
+        async function testApi(endpoint) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `⏳ در حال تست /api/${endpoint}...`;
+            
+            try {
+                const response = await fetch(`${API_BASE}/${endpoint}`);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    ✅ تست موفق
+                    <br><br>
+                    <strong>Endpoint:</strong> /api/${endpoint}
+                    <br>
+                    <strong>Status:</strong> ${response.status}
+                    <br>
+                    <strong>Data:</strong>
+                    <pre style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; overflow: auto;">
+${JSON.stringify(data, null, 2)}
+                    </pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    ❌ خطا در تست
+                    <br><br>
+                    <strong>Endpoint:</strong> /api/${endpoint}
+                    <br>
+                    <strong>Error:</strong> ${error.message}
+                `;
+            }
+        }
+        
+        // بارگذاری اولیه
+        document.addEventListener('DOMContentLoaded', checkBackend);
+    </script>
+</body>
+</html>

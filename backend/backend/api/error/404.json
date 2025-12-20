@@ -1,0 +1,6 @@
+{
+    "success": false,
+    "error": "Endpoint not found",
+    "code": 404,
+    "timestamp": "<?php echo date('Y-m-d H:i:s'); ?>"
+}

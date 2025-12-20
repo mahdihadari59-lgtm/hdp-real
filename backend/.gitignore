@@ -1,0 +1,39 @@
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backend
+backend/logs/
+backend/uploads/
+backend/database/*.db
+backend/database/*.db-*
+!backend/database/.gitkeep
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PHP
+vendor/
+composer.lock
+.env
+*.env
+
+# Cache
+.cache/
+__pycache__/
+
+# Temp
+tmp/
+temp/
+
+# Logs
+*.log

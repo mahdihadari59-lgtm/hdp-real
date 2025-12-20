@@ -1,0 +1,517 @@
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+console.log('🚀 راه‌اندازی HDP Backend در Termux...');
+console.log('📁 مسیر:', __dirname);
+
+// خواندن فایل .env
+require('dotenv').config();
+
+const MAP_API_KEY = process.env.MAP_API_KEY || "service.a26822ae11b84924a29a13225498abf0";
+
+// صفحه اصلی
+app.get('/', (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html lang="fa" dir="rtl">
+        <head>
+            <meta charset="UTF-8">
+            <title>HDP Backend</title>
+            <style>
+                body { font-family: Tahoma; padding: 20px; background: #0c2461; color: white; }
+                .container { max-width: 800px; margin: 0 auto; }
+                h1 { color: #00ff88; }
+                .card { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 10px 0; }
+                a { color: #00d4ff; text-decoration: none; }
+                .status { background: #00ff88; color: #0c2461; padding: 5px 10px; border-radius: 20px; }
+                .api-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🚗 هرمزگان درایور پرو - Backend</h1>
+                <p><span class="status">فعال</span> نسخه ۵.۰.۰ - Termux</p>
+                
+                <div class="card">
+                    <h3>📡 API‌های فعال:</h3>
+                    <div class="api-list">
+                        <div><a href="/api/health">GET /api/health</a> - وضعیت</div>
+                        <div><a href="/api/stats">GET /api/stats</a> - آمار</div>
+                        <div><a href="/api/drivers">GET /api/drivers</a> - رانندگان</div>
+                        <div><a href="/api/map/drivers">GET /api/map/drivers</a> - نقشه</div>
+                        <div><a href="/api/map/traffic">GET /api/map/traffic</a> - ترافیک</div>
+                        <div><a href="/api/map/route">GET /api/map/route</a> - مسیریابی</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>🔗 لینک‌ها:</h3>
+                    <p>🌐 Frontend: <a href="http://localhost:8000">http://localhost:8000</a></p>
+                    <p>🗺️ نقشه: <a href="http://localhost:8000/map.html">/map.html</a></p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `);
+});
+
+// وضعیت سیستم
+app.get('/api/health', (req, res) => {
+    res.json({
+        success: true,
+        project: "هرمزگان درایور پرو",
+        version: "5.0.0",
+        status: "فعال",
+        environment: "Termux Android",
+        time: new Date().toLocaleString('fa-IR'),
+        uptime: process.uptime(),
+        map: {
+            provider: "Neshan",
+            status: "فعال",
+            key: MAP_API_KEY.substring(0, 15) + '...'
+        }
+    });
+});
+
+// آمار سیستم
+app.get('/api/stats', (req, res) => {
+    res.json({
+        success: true,
+        stats: {
+            drivers: 1247,
+            online: 842,
+            trips_today: 8942,
+            map_requests: 15642,
+            average_rating: 4.8,
+            traffic_reduction: "42%",
+            accidents_reduction: "35%",
+            jobs_created: 17000
+        },
+        timestamp: new Date().toLocaleString('fa-IR')
+    });
+});
+
+// لیست رانندگان
+app.get('/api/drivers', (req, res) => {
+    const drivers = [
+        {
+            id: 'DRV-001',
+            name: 'رضا محمدی',
+            phone: '09121234567',
+            rating: 4.8,
+            status: 'available',
+            experience: '5 سال',
+            car: {
+                model: 'پژو 206',
+                color: 'سفید',
+                plate: '75-ع 123',
+                year: 1400
+            },
+            location: {
+                lat: 27.1865,
+                lng: 56.2768,
+                address: 'بندرعباس، میدان شهدا'
+            },
+            registered_at: '1402/08/15',
+            trips_completed: 1242,
+            earnings_today: 450000
+        },
+        {
+            id: 'DRV-002',
+            name: 'علی کریمی',
+            phone: '09129876543',
+            rating: 4.9,
+            status: 'on_trip',
+            experience: '7 سال',
+            car: {
+                model: 'سمند',
+                color: 'مشکی',
+                plate: '75-ع 456',
+                year: 1399
+            },
+            location: {
+                lat: 27.1920,
+                lng: 56.2650,
+                address: 'بندرعباس، بلوار امام'
+            },
+            registered_at: '1402/07/22',
+            trips_completed: 1856,
+            earnings_today: 380000
+        },
+        {
+            id: 'DRV-003',
+            name: 'محمد حسینی',
+            phone: '09131112233',
+            rating: 4.7,
+            status: 'available',
+            experience: '3 سال',
+            car: {
+                model: 'تیبا',
+                color: 'نقره‌ای',
+                plate: '75-ع 789',
+                year: 1401
+            },
+            location: {
+                lat: 27.1750,
+                lng: 56.2850,
+                address: 'بندرعباس، چهارراه ساحل'
+            },
+            registered_at: '1402/09/10',
+            trips_completed: 876,
+            earnings_today: 520000
+        }
+    ];
+    
+    res.json({
+        success: true,
+        drivers: drivers,
+        count: drivers.length,
+        online_count: drivers.filter(d => d.status === 'available').length,
+        timestamp: new Date().toLocaleString('fa-IR')
+    });
+});
+
+// موقعیت رانندگان روی نقشه
+app.get('/api/map/drivers', (req, res) => {
+    const { lat = '27.1832', lng = '56.2666', radius = '5000' } = req.query;
+    
+    const drivers = [
+        {
+            id: 'DRV-001',
+            name: 'رضا محمدی',
+            location: { 
+                lat: 27.1865 + (Math.random() * 0.01 - 0.005), 
+                lng: 56.2768 + (Math.random() * 0.01 - 0.005) 
+            },
+            status: 'available',
+            rating: 4.8,
+            car: { model: 'پژو 206', color: 'سفید' },
+            phone: '09121234567'
+        },
+        {
+            id: 'DRV-002',
+            name: 'علی کریمی',
+            location: { 
+                lat: 27.1920 + (Math.random() * 0.01 - 0.005), 
+                lng: 56.2650 + (Math.random() * 0.01 - 0.005) 
+            },
+            status: 'on_trip',
+            rating: 4.9,
+            car: { model: 'سمند', color: 'مشکی' },
+            phone: '09129876543'
+        },
+        {
+            id: 'DRV-003',
+            name: 'محمد حسینی',
+            location: { 
+                lat: 27.1750 + (Math.random() * 0.01 - 0.005), 
+                lng: 56.2850 + (Math.random() * 0.01 - 0.005) 
+            },
+            status: 'available',
+            rating: 4.7,
+            car: { model: 'تیبا', color: 'نقره‌ای' },
+            phone: '09131112233'
+        },
+        {
+            id: 'DRV-004',
+            name: 'حسن رضایی',
+            location: { 
+                lat: 27.1890 + (Math.random() * 0.01 - 0.005), 
+                lng: 56.2720 + (Math.random() * 0.01 - 0.005) 
+            },
+            status: 'available',
+            rating: 4.6,
+            car: { model: 'دنا', color: 'آبی' },
+            phone: '09143215678'
+        }
+    ];
+    
+    res.json({
+        success: true,
+        drivers: drivers,
+        count: drivers.length,
+        online: drivers.filter(d => d.status === 'available').length,
+        center: { lat: parseFloat(lat), lng: parseFloat(lng) },
+        radius: parseInt(radius),
+        timestamp: new Date().toLocaleString('fa-IR'),
+        map_info: {
+            provider: "Neshan",
+            key: MAP_API_KEY.substring(0, 10) + '...'
+        }
+    });
+});
+
+// ترافیک زنده
+app.get('/api/map/traffic', (req, res) => {
+    const { lat = '27.1832', lng = '56.2666' } = req.query;
+    
+    const levels = ['light', 'moderate', 'heavy', 'severe'];
+    const level = levels[Math.floor(Math.random() * levels.length)];
+    
+    const levelText = {
+        'light': '🟢 سبک',
+        'moderate': '🟡 متوسط', 
+        'heavy': '🟠 سنگین',
+        'severe': '🔴 شدید'
+    };
+    
+    res.json({
+        success: true,
+        traffic: {
+            location: { lat: parseFloat(lat), lng: parseFloat(lng) },
+            level: level,
+            level_text: levelText[level],
+            speed: Math.floor(Math.random() * 60) + 20,
+            congestion: Math.floor(Math.random() * 100),
+            hotspots: [
+                { name: 'میدان شهدا', congestion: 85, type: 'intersection', lat: 27.1865, lng: 56.2768 },
+                { name: 'بلوار امام', congestion: 72, type: 'boulevard', lat: 27.1920, lng: 56.2650 },
+                { name: 'چهارراه ساحل', congestion: 68, type: 'intersection', lat: 27.1750, lng: 56.2850 },
+                { name: 'فرودگاه', congestion: 45, type: 'airport', lat: 27.1587, lng: 56.1728 }
+            ]
+        },
+        timestamp: new Date().toLocaleString('fa-IR')
+    });
+});
+
+// مسیریابی
+app.get('/api/map/route', async (req, res) => {
+    const { origin = '27.1832,56.2666', destination = '27.1865,56.2768' } = req.query;
+    
+    try {
+        // شبیه‌سازی مسیریابی
+        const [origLat, origLng] = origin.split(',').map(Number);
+        const [destLat, destLng] = destination.split(',').map(Number);
+        
+        const distance = Math.sqrt(
+            Math.pow(destLat - origLat, 2) + 
+            Math.pow(destLng - origLng, 2)
+        ) * 111; // تقریب کیلومتر
+        
+        const duration = distance * 1.5; // تقریب دقیقه
+        
+        res.json({
+            success: true,
+            route: {
+                origin: { lat: origLat, lng: origLng },
+                destination: { lat: destLat, lng: destLng },
+                distance: { 
+                    value: Math.round(distance * 1000),
+                    text: `${distance.toFixed(1)} کیلومتر`
+                },
+                duration: {
+                    value: Math.round(duration * 60),
+                    text: `${Math.round(duration)} دقیقه`
+                },
+                steps: [
+                    { instruction: 'به سمت شمال حرکت کنید', distance: '200 متر', duration: '1 دقیقه' },
+                    { instruction: 'در میدان شهدا به راست بپیچید', distance: '1.2 کیلومتر', duration: '3 دقیقه' },
+                    { instruction: 'در تقاطع به چپ بپیچید', distance: '600 متر', duration: '2 دقیقه' },
+                    { instruction: 'به مقصد برسید', distance: '50 متر', duration: '1 دقیقه' }
+                ],
+                traffic_level: 'moderate',
+                has_toll: false,
+                estimated_cost: Math.round(distance * 10000)
+            },
+            provider: "Neshan",
+            timestamp: new Date().toLocaleString('fa-IR')
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'خطا در مسیریابی',
+            error: error.message
+        });
+    }
+});
+
+// هوش مصنوعی - پیش‌بینی
+app.get('/api/ai/predict', (req, res) => {
+    const riskScore = Math.floor(Math.random() * 100);
+    const riskLevel = riskScore > 70 ? 'high' : riskScore > 40 ? 'medium' : 'low';
+    
+    const levelText = {
+        'high': '🔴 بالا',
+        'medium': '🟡 متوسط', 
+        'low': '🟢 پایین'
+    };
+    
+    const recommendations = {
+        'high': ['کاهش سرعت', 'رعایت فاصله زیاد', 'استراحت بین راه'],
+        'medium': ['رانندگی محتاطانه', 'رعایت قوانین', 'کنترل سرعت'],
+        'low': ['رانندگی معمولی', 'حفظ سرعت مجاز', 'لذت بردن از سفر']
+    };
+    
+    res.json({
+        success: true,
+        prediction: {
+            risk_score: riskScore,
+            risk_level: riskLevel,
+            risk_level_text: levelText[riskLevel],
+            confidence: 0.85 + (Math.random() * 0.1),
+            message: riskLevel === 'high' ? '⚠️ احتیاط کنید! شرایط نامناسب' : 
+                    riskLevel === 'medium' ? '⚠️ مراقب باشید' : '✅ شرایط مناسب',
+            recommendations: recommendations[riskLevel],
+            factors: [
+                'وضعیت ترافیک',
+                'شرایط جوی',
+                'رفتار رانندگی',
+                'سلامت وسیله نقلیه'
+            ]
+        },
+        timestamp: new Date().toLocaleString('fa-IR')
+    });
+});
+
+// ثبت راننده جدید
+app.post('/api/drivers/register', (req, res) => {
+    const { name, phone, car_model, car_color, experience } = req.body;
+    
+    if (!name || !phone) {
+        return res.status(400).json({
+            success: false,
+            message: 'نام و شماره تلفن الزامی است'
+        });
+    }
+    
+    const newDriver = {
+        id: 'DRV-' + Date.now(),
+        name: name,
+        phone: phone,
+        rating: 5.0,
+        status: 'pending',
+        experience: experience || 'جدید',
+        car: {
+            model: car_model || 'ثبت نشده',
+            color: car_color || 'ثبت نشده',
+            plate: 'در انتظار ثبت'
+        },
+        location: {
+            lat: 27.1832 + (Math.random() * 0.02 - 0.01),
+            lng: 56.2666 + (Math.random() * 0.02 - 0.01),
+            address: 'بندرعباس'
+        },
+        registered_at: new Date().toLocaleString('fa-IR'),
+        verification_steps: [
+            'تایید مدارک',
+            'آموزش اپلیکیشن',
+            'فعال‌سازی حساب'
+        ]
+    };
+    
+    res.json({
+        success: true,
+        message: `راننده ${name} با موفقیت ثبت شد`,
+        driver: newDriver,
+        next_steps: [
+            'ارسال مدارک به پشتیبانی',
+            'شرکت در دوره آموزش آنلاین',
+            'دانلود اپلیکیشن راننده'
+        ],
+        contact: {
+            phone: '۰۷۶-۳۲۲۴۹۷۹۲',
+            email: 'info@hormozgandriver.ir'
+        }
+    });
+});
+
+// وضعیت Emergency
+app.post('/api/emergency/sos', (req, res) => {
+    const { driver_id, location, reason } = req.body;
+    
+    res.json({
+        success: true,
+        emergency: {
+            id: 'EMS-' + Date.now(),
+            driver_id: driver_id,
+            location: location || { lat: 27.1832, lng: 56.2666 },
+            reason: reason || 'درخواست کمک',
+            status: 'help_sent',
+            timestamp: new Date().toLocaleString('fa-IR'),
+            response: {
+                police_notified: true,
+                ambulance_notified: true,
+                eta: '10 دقیقه',
+                contact: '۱۱۰ - ۱۱۵'
+            }
+        },
+        message: 'درخواست کمک دریافت شد. نیروهای امدادی در راه هستند.'
+    });
+});
+
+// وضعیت سیستم (برای مانیتورینگ)
+app.get('/api/system/status', (req, res) => {
+    const memoryUsage = process.memoryUsage();
+    
+    res.json({
+        success: true,
+        system: {
+            node_version: process.version,
+            platform: process.platform,
+            uptime: Math.floor(process.uptime()),
+            memory: {
+                rss: Math.round(memoryUsage.rss / 1024 / 1024) + ' MB',
+                heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024) + ' MB',
+                heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024) + ' MB'
+            },
+            connections: Math.floor(Math.random() * 100) + 50
+        },
+        services: {
+            api: 'online',
+            database: 'online',
+            map: 'online',
+            ai: 'online',
+            emergency: 'online'
+        },
+        timestamp: new Date().toLocaleString('fa-IR')
+    });
+});
+
+// 404 Handler
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: 'API مورد نظر یافت نشد',
+        available_apis: [
+            '/api/health',
+            '/api/stats', 
+            '/api/drivers',
+            '/api/map/drivers',
+            '/api/map/traffic',
+            '/api/map/route',
+            '/api/ai/predict',
+            '/api/system/status'
+        ]
+    });
+});
+
+// راه‌اندازی سرور
+const PORT = 3000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log('='.repeat(50));
+    console.log('🚗 هرمزگان درایور پرو - Backend');
+    console.log(`🌐 در حال اجرا روی: http://0.0.0.0:${PORT}`);
+    console.log(`📅 تاریخ: ${new Date().toLocaleString('fa-IR')}`);
+    console.log('='.repeat(50));
+    console.log('\n📡 API‌های فعال:');
+    console.log('  GET  /                 - صفحه اصلی');
+    console.log('  GET  /api/health       - وضعیت سیستم');
+    console.log('  GET  /api/stats        - آمار سیستم');
+    console.log('  GET  /api/drivers      - لیست رانندگان');
+    console.log('  GET  /api/map/drivers  - موقعیت روی نقشه');
+    console.log('  GET  /api/map/traffic  - ترافیک زنده');
+    console.log('  GET  /api/map/route    - مسیریابی');
+    console.log('  GET  /api/ai/predict   - پیش‌بینی AI');
+    console.log('  POST /api/drivers/register - ثبت راننده');
+    console.log('  POST /api/emergency/sos - SOS اضطراری');
+    console.log('\n🔗 لینک‌ها:');
+    console.log(`  Frontend: http://localhost:8000`);
+    console.log(`  نقشه: http://localhost:8000/map.html`);
+    console.log('='.repeat(50));
+});

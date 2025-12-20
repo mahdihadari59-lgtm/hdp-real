@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>مدیریت رزروها - HDP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/vazirmatn@33.0.0/Vazirmatn-font-face.css" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Vazirmatn', Tahoma;
+            background: linear-gradient(135deg, #0c2461, #1e3799);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 3rem;
+            color: #00ff88;
+            margin-bottom: 15px;
+        }
+        
+        .title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        /* آمار */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        /* جدول */
+        .bookings-table {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 30px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: rgba(0,255,136,0.2);
+            padding: 15px;
+            text-align: right;
+            font-weight: bold;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        /* وضعیت‌ها */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background: rgba(255,193,7,0.2);
+            color: #ffc107;
+        }
+        
+        .status-accepted {
+            background: rgba(0,200,83,0.2);
+            color: #00c853;
+        }
+        
+        .status-in_progress {
+            background: rgba(33,150,243,0.2);
+            color: #2196f3;
+        }
+        
+        .status-completed {
+            background: rgba(76,175,80,0.2);
+            color: #4caf50;
+        }
+        
+        .status-cancelled {
+            background: rgba(244,67,54,0.2);
+            color: #f44336;
+        }
+        
+        /* دکمه‌ها */
+        .btn {
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Vazirmatn';
+            font-size: 0.9rem;
+            margin: 2px;
+            transition: all 0.3s;
+        }
+        
+        .btn-view {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .btn-edit {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .btn-cancel {
+            background: #f44336;
+            color: white;
+        }
+        
+        .btn-complete {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* فیلترها */
+        .filters {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background: #00ff88;
+            color: #0c2461;
+        }
+        
+        .filter-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* جزئیات */
+        .details-panel {
+            background: rgba(255,255,255,0.05);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .detail-item {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .detail-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        /* رسپانسیو */
+        @media (max-width: 768px) {
+            .bookings-table {
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 800px;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- هدر -->
+        <div class="header">
+            <div class="logo">📊</div>
+            <h1 class="title">مدیریت رزروهای HDP</h1>
+            <p>پنل مدیریت و نظارت بر سفرهای ثبت شده</p>
+        </div>
+        
+        <!-- آمار سریع -->
+        <div class="stats-grid" id="quickStats">
+            <div class="stat-card">
+                <div class="stat-value">0</div>
+                <div class="stat-label">کل رزروها</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">0</div>
+                <div class="stat-label">در انتظار</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">0</div>
+                <div class="stat-label">در حال انجام</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">0</div>
+                <div class="stat-label">درآمد امروز</div>
+            </div>
+        </div>
+        
+        <!-- فیلترها -->
+        <div class="filters">
+            <h3><i class="fas fa-filter"></i> فیلترها</h3>
+            <div class="filter-group">
+                <button class="filter-btn active" onclick="filterBookings('all')">همه</button>
+                <button class="filter-btn" onclick="filterBookings('pending')">در انتظار</button>
+                <button class="filter-btn" onclick="filterBookings('accepted')">پذیرفته شده</button>
+                <button class="filter-btn" onclick="filterBookings('in_progress')">در حال انجام</button>
+                <button class="filter-btn" onclick="filterBookings('completed')">تکمیل شده</button>
+                <button class="filter-btn" onclick="filterBookings('cancelled')">لغو شده</button>
+            </div>
+            <div class="filter-group">
+                <input type="text" id="searchInput" placeholder="جستجو بر اساس کد رزرو، نام مشتری یا راننده..." 
+                       style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white;">
+                <button class="filter-btn" onclick="searchBookings()">
+                    <i class="fas fa-search"></i> جستجو
+                </button>
+                <button class="filter-btn" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i> بروزرسانی
+                </button>
+            </div>
+        </div>
+        
+        <!-- جدول رزروها -->
+        <div class="bookings-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>کد رزرو</th>
+                        <th>مشتری</th>
+                        <th>راننده</th>
+                        <th>مبدا → مقصد</th>
+                        <th>هزینه</th>
+                        <th>وضعیت</th>
+                        <th>زمان ثبت</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingsTable">
+                    <!-- داده‌ها اینجا لود می‌شوند -->
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #aaa;">
+                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                            <p style="margin-top: 15px;">در حال بارگذاری اطلاعات...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- جزئیات رزرو -->
+        <div class="details-panel" id="detailsPanel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3><i class="fas fa-info-circle"></i> جزئیات رزرو</h3>
+                <button class="btn btn-view" onclick="closeDetails()">
+                    <i class="fas fa-times"></i> بستن
+                </button>
+            </div>
+            
+            <div class="details-grid" id="bookingDetails">
+                <!-- جزئیات اینجا نمایش داده می‌شود -->
+            </div>
+            
+            <!-- تایم‌لاین -->
+            <div style="margin-top: 30px;">
+                <h4><i class="fas fa-history"></i> تایم‌لاین سفر</h4>
+                <div id="timeline" style="margin-top: 15px;">
+                    <!-- تایم‌لاین اینجا نمایش داده می‌شود -->
+                </div>
+            </div>
+            
+            <!-- عملیات -->
+            <div style="margin-top: 30px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-complete" onclick="updateStatus('accepted')">
+                    <i class="fas fa-check"></i> پذیرش رزرو
+                </button>
+                <button class="btn btn-complete" onclick="updateStatus('in_progress')">
+                    <i class="fas fa-play"></i> شروع سفر
+                </button>
+                <button class="btn btn-complete" onclick="updateStatus('completed')">
+                    <i class="fas fa-flag-checkered"></i> تکمیل سفر
+                </button>
+                <button class="btn btn-cancel" onclick="cancelBooking()">
+                    <i class="fas fa-times"></i> لغو رزرو
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // متغیرهای جهانی
+        let allBookings = [];
+        let currentBooking = null;
+        const API_BASE = 'http://localhost:3000/api';
+        
+        // بارگذاری داده‌ها
+        async function loadBookings() {
+            try {
+                const response = await fetch(`${API_BASE}/bookings`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    allBookings = data.bookings;
+                    updateStats(data.stats);
+                    renderBookings(allBookings);
+                }
+            } catch (error) {
+                console.error('خطا در بارگذاری رزروها:', error);
+                showMessage('error', 'خطا در ارتباط با سرور');
+                
+                // استفاده از داده‌های نمونه
+                loadSampleData();
+            }
+        }
+        
+        // بروزرسانی آمار
+        function updateStats(stats) {
+            document.getElementById('quickStats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.total}</div>
+                    <div class="stat-label">کل رزروها</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.pending}</div>
+                    <div class="stat-label">در انتظار</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.active}</div>
+                    <div class="stat-label">در حال انجام</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.total * 100000}</div>
+                    <div class="stat-label">درآمد کل</div>
+                </div>
+            `;
+        }
+        
+        // رندر جدول
+        function renderBookings(bookings) {
+            const tbody = document.getElementById('bookingsTable');
+            
+            if (bookings.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #aaa;">
+                            <i class="fas fa-inbox fa-2x"></i>
+                            <p style="margin-top: 15px;">رزروی یافت نشد</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = bookings.map(booking => `
+                <tr>
+                    <td><strong>${booking.code}</strong></td>
+                    <td>
+                        <div>${booking.customer.name}</div>
+                        <div style="font-size: 0.8rem; color: #aaa;">${booking.customer.phone}</div>
+                    </td>
+                    <td>
+                        <div>${booking.driver.name}</div>
+                        <div style="font-size: 0.8rem; color: #aaa;">${booking.driver.car.model}</div>
+                    </td>
+                    <td>
+                        <div style="font-size: 0.9rem;">${truncateText(booking.pickup, 20)}</div>
+                        <div style="font-size: 0.8rem; color: #aaa;">↓</div>
+                        <div style="font-size: 0.9rem;">${truncateText(booking.destination, 20)}</div>
+                    </td>
+                    <td>
+                        <div style="color: #00ff88; font-weight: bold;">
+                            ${formatNumber(booking.cost)} تومان
+                        </div>
+                        <div style="font-size: 0.8rem; color: #aaa;">
+                            ${booking.passengers} نفر
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${booking.status}">
+                            ${getStatusText(booking.status)}
+                        </span>
+                    </td>
+                    <td>${booking.created_at}</td>
+                    <td>
+                        <button class="btn btn-view" onclick="showDetails('${booking.code}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-edit" onclick="editBooking('${booking.code}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        ${booking.status === 'pending' || booking.status === 'accepted' ? `
+                        <button class="btn btn-cancel" onclick="cancelBookingPrompt('${booking.code}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // فیلتر رزروها
+        function filterBookings(status) {
+            // به‌روزرسانی دکمه‌های فیلتر
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            let filtered = allBookings;
+            
+            if (status !== 'all') {
+                filtered = allBookings.filter(b => b.status === status);
+            }
+            
+            renderBookings(filtered);
+        }
+        
+        // جستجو
+        function searchBookings() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!query) {
+                renderBookings(allBookings);
+                return;
+            }
+            
+            const filtered = allBookings.filter(booking => 
+                booking.code.toLowerCase().includes(query) ||
+                booking.customer.name.toLowerCase().includes(query) ||
+                booking.customer.phone.includes(query) ||
+                booking.driver.name.toLowerCase().includes(query) ||
+                booking.pickup.toLowerCase().includes(query) ||
+                booking.destination.toLowerCase().includes(query)
+            );
+            
+            renderBookings(filtered);
+        }
+        
+        // نمایش جزئیات
+        async function showDetails(code) {
+            try {
+                const response = await fetch(`${API_BASE}/bookings/${code}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentBooking = data.booking;
+                    
+                    // نمایش جزئیات
+                    document.getElementById('bookingDetails').innerHTML = `
+                        <div class="detail-item">
+                            <div class="detail-label">کد رزرو</div>
+                            <div class="detail-value">${data.booking.code}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">مشتری</div>
+                            <div class="detail-value">${data.booking.customer.name}</div>
+                            <div class="detail-label">تلفن: ${data.booking.customer.phone}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">راننده</div>
+                            <div class="detail-value">${data.booking.driver.name}</div>
+                            <div class="detail-label">${data.booking.driver.car.model} - ${data.booking.driver.car.color}</div>
+                            <div class="detail-label">تلفن: ${data.booking.driver.phone}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">مسیر</div>
+                            <div class="detail-value">${data.booking.pickup}</div>
+                            <div class="detail-label">به</div>
+                            <div class="detail-value">${data.booking.destination}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">هزینه</div>
+                            <div class="detail-value">${formatNumber(data.booking.cost)} تومان</div>
+                            <div class="detail-label">${data.booking.passengers} نفر - ${data.booking.trip_type}</div>
+                        </div>
+                        <div class="detail-item">
+                     class="detail-label">وضعیت</div>
+                            <div class="detail-value">
+                                <span class="status-badge status-${data.booking.status}">
+                                    ${getStatusText(data.booking.status)}
+                                </span>
+                            </div>
+                            <div class="detail-label">زمان ثبت: ${data.booking.created_at}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">مسافت تخمینی</div>
+                            <div class="detail-value">${data.booking.estimated_distance}</div>
+                            <div class="detail-label">زمان تخمینی: ${data.booking.estimated_duration}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">یادداشت</div>
+                            <div class="detail-value">${data.booking.notes || 'بدون یادداشت'}</div>
+                        </div>
+                    `;
+                    
+                    // نمایش تایم‌لاین
+                    if (data.timeline) {
+                        document.getElementById('timeline').innerHTML = data.timeline.map(item => `
+                            <div style="display: flex; align-items: center; margin-bottom: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                <div style="width: 30px; height: 30px; background: ${item.status === 'completed' ? '#00ff88' : '#ff9800'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: 10px;">
+                                    <i class="fas fa-${item.status === 'completed' ? 'check' : 'clock'}"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div>${item.event}</div>
+                                    <div style="font-size: 0.8rem; color: #aaa;">${item.time}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                    
+                    // نمایش پنل
+                    document.getElementById('detailsPanel').style.display = 'block';
+                }
+            } catch (error) {
+                showMessage('error', 'خطا در دریافت جزئیات');
+            }
+        }
+        
+        // بستن جزئیات
+        function closeDetails() {
+            document.getElementById('detailsPanel').style.display = 'none';
+            currentBooking = null;
+        }
+        
+        // تغییر وضعیت
+        async function updateStatus(newStatus) {
+            if (!currentBooking) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/bookings/${currentBooking.code}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('success', `وضعیت به "${getStatusText(newStatus)}" تغییر کرد`);
+                    loadBookings();
+                    showDetails(currentBooking.code);
+                } else {
+                    showMessage('error', data.message);
+                }
+            } catch (error) {
+                showMessage('error', 'خطا در به‌روزرسانی وضعیت');
+            }
+        }
+        
+        // لغو رزرو
+        async function cancelBooking() {
+            if (!currentBooking) return;
+            
+            if (!confirm(`آیا از لغو رزرو ${currentBooking.code} اطمینان دارید؟`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/bookings/${currentBooking.code}/cancel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ reason: 'لغو توسط ادمین' })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('success', 'رزرو با موفقیت لغو شد');
+                    loadBookings();
+                    closeDetails();
+                } else {
+                    showMessage('error', data.message);
+                }
+            } catch (error) {
+                showMessage('error', 'خطا در لغو رزرو');
+            }
+        }
+        
+        // نمایش پیام لغو
+        function cancelBookingPrompt(code) {
+            if (confirm(`آیا از لغو رزرو ${code} اطمینان دارید؟`)) {
+                // شبیه‌سازی لغو
+                showMessage('info', 'در حال لغو رزرو...');
+                setTimeout(() => {
+                    showMessage('success', 'رزرو لغو شد');
+                    loadBookings();
+                }, 1000);
+            }
+        }
+        
+        // ویرایش رزرو
+        function editBooking(code) {
+            alert(`ویرایش رزرو ${code}\nاین قابلیت در نسخه بعدی اضافه خواهد شد.`);
+        }
+        
+        // بروزرسانی داده‌ها
+        function refreshData() {
+            showMessage('info', 'در حال بروزرسانی اطلاعات...');
+            loadBookings();
+        }
+        
+        // توابع کمکی
+        function truncateText(text, maxLength) {
+            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        }
+        
+        function formatNumber(num) {
+            return new Intl.NumberFormat('fa-IR').format(num);
+        }
+        
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'در انتظار',
+                'accepted': 'پذیرفته شده',
+                'on_the_way': 'در راه',
+                'in_progress': 'در حال انجام',
+                'completed': 'تکمیل شده',
+                'cancelled': 'لغو شده'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function showMessage(type, text) {
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 12px 24px;
+                border-radius: 50px;
+                color: white;
+                font-family: 'Vazirmatn';
+                z-index: 10000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                animation: slideDown 0.3s ease;
+            `;
+            
+            if (type === 'success') {
+                message.style.background = 'linear-gradient(135deg, #00ff88, #00A693)';
+            } else if (type === 'error') {
+                message.style.background = 'linear-gradient(135deg, #ff4444, #cc0000)';
+            } else {
+                message.style.background = 'linear-gradient(135deg, #2196f3, #0d47a1)';
+            }
+            
+            message.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                ${text}
+            `;
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    if (message.parentNode) {
+                        message.parentNode.removeChild(message);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // داده‌های نمونه
+        function loadSampleData() {
+            allBookings = [
+                {
+                    code: 'HDP-2EBW5Y',
+                    customer: { name: 'علی احمدی', phone: '09123456789' },
+                    driver: { name: 'رضا محمدی', car: { model: 'پژو 206' } },
+                    pickup: 'بندرعباس، میدان شهدا',
+                    destination: 'قشم، فرودگاه بین‌المللی',
+                    cost: 154000,
+                    passengers: 2,
+                    status: 'pending',
+                    created_at: '۱۴۰۴/۹/۲۹, ۴:۰۵:۲۹'
+                },
+                {
+                    code: 'HDP-WKSWDS',
+                    customer: { name: 'تست سیستم', phone: '09111111111' },
+                    driver: { name: 'محمد حسینی', car: { model: 'تیبا' } },
+                    pickup: 'بندرعباس، ساحل سورو',
+                    destination: 'قشم، درخت سبز',
+                    cost: 352000,
+                    passengers: 3,
+                    status: 'pending',
+                    created_at: '۱۴۰۴/۹/۲۹, ۴:۱۳:۱۳'
+                }
+            ];
+            
+            updateStats({
+                total: 2,
+                pending: 2,
+                active: 0,
+                cancelled: 0
+            });
+            
+            renderBookings(allBookings);
+            showMessage('info', 'از داده‌های نمونه استفاده می‌شود');
+        }
+        
+        // بارگذاری اولیه
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBookings();
+            
+            // اضافه کردن استایل‌های انیمیشن
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideDown {
+                    from { top: -50px; opacity: 0; }
+                    to { top: 20px; opacity: 1; }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; }
+                    to { opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
