@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رزرو تاکسی - HDP</title>
+    <style>
+        body {
+            font-family: Tahoma;
+            padding: 20px;
+            background: #e3f2fd;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 رزرو تاکسی</h1>
+        <p>سفر خود را رزرو کنید</p>
+        
+        <div id="form">
+            <input type="text" id="name" placeholder="نام شما">
+            <input type="text" id="phone" placeholder="شماره تلفن">
+            <input type="text" id="from" placeholder="مبدا (مثلا: بندرعباس مرکز)">
+            <input type="text" id="to" placeholder="مقصد (مثلا: فرودگاه)">
+            <select id="carType">
+                <option value="standard">معمولی</option>
+                <option value="vip">VIP</option>
+                <option value="luxury">لوکس</option>
+            </select>
+            <button onclick="bookRide()">رزرو سفر</button>
+        </div>
+        
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+    
+    <script>
+        async function bookRide() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const from = document.getElementById('from').value;
+            const to = document.getElementById('to').value;
+            const carType = document.getElementById('carType').value;
+            
+            if (!name || !phone || !from || !to) {
+                alert('لطفا همه فیلدها را پر کنید');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/bookings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        passenger: name,
+                        phone: phone,
+                        from: from,
+                        to: to,
+                        carType: carType
+                    })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('result').innerHTML = `
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 10px;">
+                        <h3>✅ سفر با موفقیت رزرو شد!</h3>
+                        <p>کد رهگیری: ${data.booking?.id || 'N/A'}</p>
+                        <p>وضعیت: ${data.booking?.status || 'pending'}</p>
+                        <p>${data.message}</p>
+                    </div>
+                `;
+                
+                // پاک کردن فرم
+                document.getElementById('form').reset();
+                
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <div style="background: #ffebee; padding: 15px; border-radius: 10px;">
+                        <h3>❌ خطا در رزرو</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // پر کردن خودکار نمونه
+        window.onload = function() {
+            document.getElementById('name').value = 'علی محمدی';
+            document.getElementById('phone').value = '09121234567';
+            document.getElementById('from').value = 'بندرعباس مرکز';
+            document.getElementById('to').value = 'ساحل سورو';
+        };
+    </script>
+</body>
+</html>

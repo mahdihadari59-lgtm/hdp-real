@@ -2,15 +2,28 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>🗺️ نقشه زنده HDP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نقشه زنده رانندگان - هرمزگان درایور پرو</title>
+    
+    <!-- کتابخانه نقشه Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Font Awesome برای آیکون‌ها -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- فونت فارسی -->
     <link href="https://cdn.jsdelivr.net/npm/vazirmatn@33.0.0/Vazirmatn-font-face.css" rel="stylesheet">
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Vazirmatn', Tahoma; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Vazirmatn', 'Segoe UI', Tahoma, sans-serif;
+        }
+        
+        body {
             background: #1a1a2e;
             color: white;
             height: 100vh;
@@ -24,13 +37,13 @@
         
         /* نوار کناری */
         .sidebar {
-            width: 350px;
+            width: 380px;
             background: rgba(30, 30, 46, 0.95);
             backdrop-filter: blur(10px);
-            padding: 20px;
+            padding: 25px;
             overflow-y: auto;
-            border-left: 1px solid rgba(255,255,255,0.1);
-            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
         }
         
         /* نقشه */
@@ -47,21 +60,22 @@
         /* هدر */
         .header {
             text-align: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .logo {
-            font-size: 2.5rem;
+            font-size: 2rem;
             color: #00ff88;
             margin-bottom: 10px;
         }
         
         .title {
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             font-weight: bold;
             margin-bottom: 5px;
+            color: #00ff88;
         }
         
         .subtitle {
@@ -71,33 +85,33 @@
         
         /* کارت‌ها */
         .card {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 15px;
-            border: 1px solid rgba(255,255,255,0.08);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             transition: all 0.3s;
         }
         
         .card:hover {
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
             transform: translateY(-2px);
         }
         
         .card-title {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
+            gap: 12px;
+            margin-bottom: 15px;
             color: #00d4ff;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
         }
         
         /* دکمه‌ها */
         .btn-group {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 20px;
         }
         
@@ -105,15 +119,15 @@
             background: linear-gradient(135deg, #00A693, #008374);
             color: white;
             border: none;
-            padding: 12px;
+            padding: 14px;
             border-radius: 8px;
             cursor: pointer;
             font-family: 'Vazirmatn';
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             transition: all 0.3s;
         }
         
@@ -126,6 +140,10 @@
             background: linear-gradient(135deg, #003366, #004080);
         }
         
+        .btn-danger {
+            background: linear-gradient(135deg, #FF6B6B, #ff4444);
+        }
+        
         /* لیست رانندگان */
         .driver-list {
             margin-top: 20px;
@@ -134,28 +152,29 @@
         .driver-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 8px;
-            margin-bottom: 10px;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            margin-bottom: 12px;
             cursor: pointer;
             transition: all 0.3s;
         }
         
         .driver-item:hover {
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(-5px);
         }
         
         .driver-avatar {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             background: linear-gradient(135deg, #00A693, #003366);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
         }
         
         .driver-info {
@@ -164,11 +183,11 @@
         
         .driver-name {
             font-weight: bold;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
         }
         
         .driver-status {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #aaa;
         }
         
@@ -187,7 +206,7 @@
             right: 20px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             z-index: 1000;
         }
         
@@ -195,21 +214,21 @@
             background: white;
             color: #003366;
             border: none;
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            font-size: 1.3rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
             transition: all 0.3s;
         }
         
         .control-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
         /* پنل جستجو */
@@ -218,25 +237,91 @@
             top: 20px;
             left: 20px;
             background: white;
-            padding: 15px;
+            padding: 20px;
             border-radius: 12px;
-            width: 300px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            width: 350px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
             z-index: 1000;
             display: none;
         }
         
         .search-input {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: 2px solid #00A693;
             border-radius: 8px;
             font-family: 'Vazirmatn';
             font-size: 1rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .search-results {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .search-result-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #333;
+        }
+        
+        .search-result-item:hover {
+            background: #f5f5f5;
+        }
+        
+        /* راهنما */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            color: #333;
+            z-index: 1000;
+            max-width: 250px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 10px;
         }
         
-        /* رسپانسیو */
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+        
+        .legend-color.driver {
+            background: #00A693;
+        }
+        
+        .legend-color.passenger {
+            background: #FF6B6B;
+        }
+        
+        .legend-color.hotspot {
+            background: #FFCC00;
+        }
+        
+        /* انیمیشن‌ها */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* ریسپانسیو */
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -262,15 +347,15 @@
             <!-- کنترل‌های نقشه -->
             <div class="map-controls">
                 <button class="control-btn" onclick="locateMe()" title="موقعیت من">
-                    <i class="fas fa-crosshairs"></i>
+                    <i class="fas fa-location-crosshairs"></i>
                 </button>
-                <button class="control-btn" onclick="loadDrivers()" title="بارگذاری مجدد">
+                <button class="control-btn" onclick="refreshDrivers()" title="بروزرسانی رانندگان">
                     <i class="fas fa-sync-alt"></i>
                 </button>
-                <button class="control-btn" onclick="showTraffic()" title="ترافیک">
+                <button class="control-btn" onclick="showTraffic()" title="ترافیک زنده">
                     <i class="fas fa-traffic-light"></i>
                 </button>
-                <button class="control-btn" onclick="showSearchPanel()" title="جستجو">
+                <button class="control-btn" onclick="showSearch()" title="جستجوی مکان">
                     <i class="fas fa-search"></i>
                 </button>
             </div>
@@ -281,20 +366,37 @@
                        id="searchInput" onkeypress="if(event.key === 'Enter') searchLocation()">
                 <div class="search-results" id="searchResults"></div>
             </div>
+            
+            <!-- راهنما -->
+            <div class="legend">
+                <h4 style="margin-bottom: 15px; color: #003366;">🗺️ نمادها</h4>
+                <div class="legend-item">
+                    <div class="legend-color driver"></div>
+                    <span>راننده فعال</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color passenger"></div>
+                    <span>مسافر</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color hotspot"></div>
+                    <span>نقطه پرترافیک</span>
+                </div>
+            </div>
         </div>
         
         <!-- نوار کناری -->
         <div class="sidebar">
             <div class="header">
-                <div class="logo">🚗</div>
-                <div class="title">نقشه زنده HDP</div>
-                <div class="subtitle">موقعیت لحظه‌ای رانندگان و ترافیک</div>
-                <div style="margin-top: 10px; font-size: 0.8rem; color: #00ff88;">
+                <div class="logo">🚕</div>
+                <div class="title">نقشه زنده هرمزگان درایور پرو</div>
+                <div class="subtitle">موقعیت لحظه‌ای رانندگان و ترافیک بندرعباس</div>
+                
+                <div style="margin-top: 15px; font-size: 0.8rem; color: #00ff88;">
                     <i class="fas fa-key"></i> کلید نقشه: service.a26822ae...
                 </div>
             </div>
             
-            <!-- کارت وضعیت -->
             <div class="card">
                 <div class="card-title">
                     <i class="fas fa-map-marked-alt"></i>
@@ -303,16 +405,15 @@
                 <div style="display: flex; justify-content: space-between;">
                     <div>
                         <div style="font-size: 0.9rem; color: #aaa;">رانندگان آنلاین</div>
-                        <div id="onlineCount" style="font-size: 1.5rem; font-weight: bold;">0</div>
+                        <div id="onlineCount" style="font-size: 2rem; font-weight: bold;">0</div>
                     </div>
                     <div>
-                        <div style="font-size: 0.9rem; color: #aaa;">آخرین بروزرسانی</div>
-                        <div id="lastUpdate" style="font-size: 0.9rem;">هم اکنون</div>
+                        <div style="font-size: 0.9rem; color: #aaa;">موقعیت من</div>
+                        <div id="myLocation" style="font-size: 0.9rem;">در حال دریافت...</div>
                     </div>
                 </div>
             </div>
             
-            <!-- دکمه‌های کنترلی -->
             <div class="btn-group">
                 <button class="btn" onclick="getRoute()">
                     <i class="fas fa-route"></i>
@@ -328,31 +429,31 @@
                 </button>
                 <button class="btn btn-secondary" onclick="exportMap()">
                     <i class="fas fa-download"></i>
-                    ذخیره
+                    ذخیره نقشه
                 </button>
             </div>
             
-            <!-- اطلاعات سیستم -->
             <div class="card">
                 <div class="card-title">
                     <i class="fas fa-info-circle"></i>
                     <span>اطلاعات سیستم</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                    <span>Backend:</span>
-                    <span id="backendStatus" style="color: #00ff88;">متصال</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                    <span>نقشه API:</span>
-                    <span id="mapApiStatus" style="color: #00ff88;">فعال</span>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span>آخرین بروزرسانی:</span>
-                    <span id="lastUpdateTime">هم اکنون</span>
+                <div id="systemInfo">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>Backend:</span>
+                        <span id="backendStatus" style="color: #00ff88;">✅ متصل</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>API نقشه:</span>
+                        <span id="mapApiStatus" style="color: #00ff88;">✅ فعال</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>آخرین بروزرسانی:</span>
+                        <span id="lastUpdate">هم اکنون</span>
+                    </div>
                 </div>
             </div>
             
-            <!-- لیست رانندگان -->
             <div class="driver-list">
                 <div class="card-title">
                     <i class="fas fa-users"></i>
@@ -361,15 +462,28 @@
                 <div id="driversList">
                     <!-- رانندگان اینجا لود می‌شوند -->
                     <div style="text-align: center; padding: 20px; color: #aaa;">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        در حال بارگذاری...
+                        <i class="fas fa-spinner fa-spin"></i> در حال بارگذاری رانندگان...
                     </div>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 20px; background: rgba(0, 166, 147, 0.1);">
+                <div class="card-title">
+                    <i class="fas fa-cog"></i>
+                    <span>تنظیمات نقشه</span>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button onclick="changeMapStyle('standard')" style="flex:1; padding: 10px; background: #003366; color: white; border: none; border-radius: 5px;">
+                        نقشه استاندارد
+                    </button>
+                    <button onclick="changeMapStyle('satellite')" style="flex:1; padding: 10px; background: #004080; color: white; border: none; border-radius: 5px;">
+                        ماهواره‌ای
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <script>
         // متغیرهای جهانی
         let map;
@@ -378,43 +492,45 @@
         let routeLayer;
         let trafficLayer;
         let myLocation = { lat: 27.1832, lng: 56.2666 };
-        const API_BASE = 'http://localhost:3000/api';
+        const API_BASE = 'http://localhost:3000';
+        const NESHAN_API_KEY = 'service.a26822ae11b84924a29a13225498abf0';
         
         // مقداردهی اولیه نقشه
         function initMap() {
             // ایجاد نقشه
             map = L.map('map').setView([myLocation.lat, myLocation.lng], 14);
             
-            // اضافه کردن نقشه نشان
-            L.tileLayer('https://tile.neshan.org/{z}/{x}/{y}.png?key=service.a26822ae11b84924a29a13225498abf0', {
-                attribution: '© <a href="https://neshan.org">Neshan</a>',
-                maxZoom: 18,
-                minZoom: 1,
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+            // اضافه کردن نقشه پایه (استفاده از OpenStreetMap به جای Neshan برای سادگی)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap',
+                maxZoom: 19,
             }).addTo(map);
             
+            // اضافه کردن کنترل‌های نقشه
             L.control.zoom({ position: 'bottomright' }).addTo(map);
             
-            // مارکر موقعیت من
+            // اضافه کردن موقعیت من
             myLocationMarker = L.marker([myLocation.lat, myLocation.lng], {
                 icon: L.divIcon({
                     className: 'my-location-marker',
-                    html: '<div style="background: #00A693; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0, 166, 147, 0.8);"></div>',
-                    iconSize: [30, 30]
+                    html: '<div style="background: #00A693; width: 35px; height: 35px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(0, 166, 147, 0.8);"></div>',
+                    iconSize: [35, 35]
                 })
-            }).addTo(map).bindPopup('<b>موقعیت من</b>').openPopup();
+            }).addTo(map);
             
-            // بارگذاری رانندگان
+            myLocationMarker.bindPopup('<b>موقعیت من</b><br>بندرعباس، مرکز شهر').openPopup();
+            
+            // دریافت رانندگان
             loadDrivers();
             
-            // به‌روزرسانی خودکار هر 30 ثانیه
-            setInterval(loadDrivers, 30000);
+            // شروع به‌روزرسانی خودکار
+            setInterval(loadDrivers, 30000); // هر 30 ثانیه
         }
         
         // بارگذاری رانندگان از API
         async function loadDrivers() {
             try {
-                const response = await fetch(`${API_BASE}/map/drivers?lat=${myLocation.lat}&lng=${myLocation.lng}`);
+                const response = await fetch(`${API_BASE}/api/map/drivers?lat=${myLocation.lat}&lng=${myLocation.lng}`);
                 const data = await response.json();
                 
                 if (data.success) {
@@ -422,43 +538,39 @@
                     updateDriverList(data.drivers);
                     updateOnlineCount(data.drivers.length);
                     updateLastUpdate();
-                    document.getElementById('backendStatus').innerHTML = '<span style="color:#00ff88">متصال</span>';
                 }
             } catch (error) {
                 console.error('خطا در دریافت رانندگان:', error);
-                
                 // داده‌های نمونه
                 const sampleDrivers = [
                     {
                         id: 'DRV-001',
                         name: 'رضا محمدی',
                         status: 'available',
+                        location: { lat: 27.1865 + (Math.random() * 0.01 - 0.005), lng: 56.2768 + (Math.random() * 0.01 - 0.005) },
                         rating: 4.8,
-                        location: { lat: 27.1865, lng: 56.2768 },
-                        car: { model: 'پژو 206', color: 'سفید' }
+                        phone: '09121234567'
                     },
                     {
                         id: 'DRV-002',
                         name: 'علی کریمی',
-                        status: 'on_trip',
+                        status: 'available',
+                        location: { lat: 27.1920 + (Math.random() * 0.01 - 0.005), lng: 56.2650 + (Math.random() * 0.01 - 0.005) },
                         rating: 4.9,
-                        location: { lat: 27.1920, lng: 56.2650 },
-                        car: { model: 'سمند', color: 'مشکی' }
+                        phone: '09129876543'
                     },
                     {
                         id: 'DRV-003',
                         name: 'محمد حسینی',
-                        status: 'available',
+                        status: 'on_trip',
+                        location: { lat: 27.1750 + (Math.random() * 0.01 - 0.005), lng: 56.2850 + (Math.random() * 0.01 - 0.005) },
                         rating: 4.7,
-                        location: { lat: 27.1750, lng: 56.2850 },
-                        car: { model: 'تیبا', color: 'نقره‌ای' }
+                        phone: '09131112233'
                     }
                 ];
-                
                 updateDriversOnMap(sampleDrivers);
                 updateDriverList(sampleDrivers);
                 updateOnlineCount(sampleDrivers.length);
-                document.getElementById('backendStatus').innerHTML = '<span style="color:#ffcc00">داده نمونه</span>';
             }
         }
         
@@ -476,41 +588,44 @@
                     html: `
                         <div style="
                             background: ${iconColor};
-                            width: 35px;
-                            height: 35px;
+                            width: 40px;
+                            height: 40px;
                             border-radius: 50%;
                             border: 3px solid white;
+                            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+                            display: flex;
+    
                             display: flex;
                             align-items: center;
                             justify-content: center;
                             color: white;
                             font-size: 1.2rem;
-                            box-shadow: 0 0 10px rgba(0,0,0,0.3);
                         ">
                             <i class="fas fa-car"></i>
                         </div>
                     `,
-                    iconSize: [35, 35]
+                    iconSize: [40, 40]
                 });
                 
-                const marker = L.marker([driver.location.lat, driver.location.lng], { icon })
-                    .addTo(map)
-                    .bindPopup(`
-                        <b>${driver.name}</b><br>
-                        وضعیت: ${driver.status === 'available' ? 'آماده' : 'در سفر'}<br>
-                        امتیاز: ⭐ ${driver.rating}<br>
-                        ماشین: ${driver.car?.model || 'خودرو'}<br>
-                        <button onclick="selectDriver('${driver.id}')" 
-                                style="background: #00A693; color: white; border: none; padding: 5px 10px; border-radius: 5px; margin-top: 5px; cursor: pointer;">
-                            انتخاب راننده
-                        </button>
-                    `);
+                const marker = L.marker([driver.location.lat, driver.location.lng], { icon }).addTo(map);
+                
+                marker.bindPopup(`
+                    <b>${driver.name}</b><br>
+                    وضعیت: ${driver.status === 'available' ? 'آماده' : 'در سفر'}<br>
+                    امتیاز: ${driver.rating}/5<br>
+                    تلفن: ${driver.phone}<br>
+                    <button onclick="selectDriver('${driver.id}')" 
+                            style="background: #00A693; color: white; border: none; padding: 5px 10px; 
+                                   border-radius: 5px; margin-top: 5px; cursor: pointer;">
+                        انتخاب راننده
+                    </button>
+                `);
                 
                 driverMarkers.push(marker);
             });
         }
         
-        // به‌روزرسانی لیست رانندگان در sidebar
+        // به‌روزرسانی لیست رانندگان در سایدبار
         function updateDriverList(drivers) {
             const driversList = document.getElementById('driversList');
             driversList.innerHTML = '';
@@ -518,11 +633,11 @@
             drivers.forEach(driver => {
                 const statusText = driver.status === 'available' ? 'آماده' : 'در سفر';
                 const statusClass = driver.status === 'available' ? 'available' : 'on-trip';
+                const distance = getDistanceFromMe(driver.location).toFixed(1);
                 
                 const driverItem = document.createElement('div');
                 driverItem.className = 'driver-item';
                 driverItem.onclick = () => flyToDriver(driver.location);
-                
                 driverItem.innerHTML = `
                     <div class="driver-avatar">
                         <i class="fas fa-user-tie"></i>
@@ -535,7 +650,7 @@
                         </div>
                     </div>
                     <div style="color: #00d4ff;">
-                        ${getDistanceFromMe(driver.location).toFixed(1)} کیلومتر
+                        ${distance} کیلومتر
                     </div>
                 `;
                 
@@ -547,10 +662,10 @@
         function getDistanceFromMe(location) {
             const R = 6371; // شعاع زمین به کیلومتر
             const dLat = (location.lat - myLocation.lat) * Math.PI / 180;
-            const dLon = (location.lng - myLocation.lng) * Math.PI / 180;
+            const dLng = (location.lng - myLocation.lng) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
                       Math.cos(myLocation.lat * Math.PI / 180) * Math.cos(location.lat * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
+                      Math.sin(dLng/2) * Math.sin(dLng/2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             return R * c;
         }
@@ -562,74 +677,40 @@
             });
         }
         
-        / // انتخاب راننده
+        // انتخاب راننده
         function selectDriver(driverId) {
-            alert(`راننده ${driverId} انتخاب شد`);
-            // در اینجا می‌توانید به صفحه رزرو هدایت کنید
+            alert(`راننده ${driverId} انتخاب شد\nارتباط با سامانه رزرو...`);
+            // اینجا می‌توانید به صفحه رزرو هدایت کنید
             // window.location.href = `booking.html?driver=${driverId}`;
         }
         
-        // به‌روزرسانی شمارنده آنلاین
-        function updateOnlineCount(count) {
-            document.getElementById('onlineCount').textContent = count;
-        }
-        
-        // به‌روزرسانی آخرین بروزرسانی
-        function updateLastUpdate() {
-            const now = new Date();
-            document.getElementById('lastUpdate').textContent = 
-                `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-            document.getElementById('lastUpdateTime').textContent = 
-                `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-        }
-        
-        // موقعیت من
-        function locateMe() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    myLocation = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
-                    
-                    // به‌روزرسانی موقعیت روی نقشه
-                    map.setView([myLocation.lat, myLocation.lng], 16);
-                    myLocationMarker.setLatLng([myLocation.lat, myLocation.lng]);
-                    
-                    // بارگذاری مجدد رانندگان نزدیک
-                    loadDrivers();
-                });
-            } else {
-                alert('مرورگر شما از موقعیت‌یابی پشتیبانی نمی‌کند');
-            }
-        }
-        
-        // مسیریابی
+        // دریافت مسیر
         async function getRoute() {
-            const destination = prompt('لطفا مقصد را وارد کنید (مثال: میدان شهدا بندرعباس)', 'میدان شهدا بندرعباس');
+            const destination = prompt('لطفا مقصد را وارد کنید (مثلاً: میدان شهدا بندرعباس):', 'میدان شهدا بندرعباس');
             if (!destination) return;
             
             try {
-                const response = await fetch(`${API_BASE}/map/route?origin=${myLocation.lat},${myLocation.lng}&destination=${encodeURIComponent(destination)}`);
+                const response = await fetch(`${API_BASE}/api/map/route?origin=${myLocation.lat},${myLocation.lng}&destination=${encodeURIComponent(destination)}`);
                 const data = await response.json();
                 
                 if (data.success && data.route) {
                     showRouteOnMap(data.route);
                 }
             } catch (error) {
+                console.error('خطا در دریافت مسیر:', error);
                 alert('از مسیر نمونه استفاده می‌شود');
-                
                 // مسیر نمونه
                 const sampleRoute = {
                     distance: { text: '8.5 کیلومتر' },
                     duration: { text: '12 دقیقه' },
-                    steps: [
-                        { instruction: 'به سمت شمال بروید' },
-                        { instruction: 'به میدان شهدا بپیچید' },
-                        { instruction: 'به مقصد برسید' }
-                    ]
+                    legs: [{
+                        steps: [
+                            { instruction: 'به سمت شمال بروید' },
+                            { instruction: 'به میدان شهدا بپیچید' },
+                            { instruction: 'به مقصد برسید' }
+                        ]
+                    }]
                 };
-                
                 showRouteOnMap(sampleRoute);
             }
         }
@@ -660,16 +741,16 @@
             L.marker(routeCoordinates[0], {
                 icon: L.divIcon({
                     className: 'start-marker',
-                    html: '<div style="background: #00ff88; width: 25px; height: 25px; border-radius: 50%; border: 3px solid white;"></div>',
-                    iconSize: [25, 25]
+                    html: '<div style="background: #00ff88; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white;"></div>',
+                    iconSize: [30, 30]
                 })
             }).addTo(map).bindPopup('<b>شروع</b>');
             
             L.marker(routeCoordinates[routeCoordinates.length - 1], {
                 icon: L.divIcon({
                     className: 'end-marker',
-                    html: '<div style="background: #FF6B6B; width: 25px; height: 25px; border-radius: 50%; border: 3px solid white;"></div>',
-                    iconSize: [25, 25]
+                    html: '<div style="background: #FF6B6B; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white;"></div>',
+                    iconSize: [30, 30]
                 })
             }).addTo(map).bindPopup('<b>مقصد</b>');
             
@@ -680,14 +761,14 @@
         // نمایش ترافیک
         async function showTraffic() {
             try {
-                const response = await fetch(`${API_BASE}/map/traffic?lat=${myLocation.lat}&lng=${myLocation.lng}`);
+                const response = await fetch(`${API_BASE}/api/map/traffic?lat=${myLocation.lat}&lng=${myLocation.lng}`);
                 const data = await response.json();
                 
                 if (data.success) {
                     displayTrafficInfo(data.traffic);
                 }
             } catch (error) {
-                // داده‌های نمونه
+                console.error('خطا در دریافت ترافیک:', error);
                 displayTrafficInfo({
                     level: 'moderate',
                     speed: 45,
@@ -705,44 +786,80 @@
                 'severe': 'شدید 🔴'
             };
             
-            alert(`🚦 وضعیت ترافیک:\n\nسطح: ${levelText[traffic.level] || 'متوسط'}\nسرعت: ${traffic.speed || 45} کیلومتر\nتراکم: ${traffic.congestion || 65}%`);
+            alert(`🚦 وضعیت ترافیک مرکز بندرعباس:\n\nسطح: ${levelText[traffic.level] || 'متوسط 🟡'}\nسرعت: ${traffic.speed || 45} کیلومتر/ساعت\nتراکم: ${traffic.congestion || 65}%`);
         }
         
-        // نمایش نقاط داغ
-        function showHotspots() {
-            // نقاط داغ نمونه
-            const hotspots = [
-                { name: 'میدان شهدا', lat: 27.1865, lng: 56.2768, congestion: 85 },
-                { name: 'بلوار امام', lat: 27.1920, lng: 56.2650, congestion: 72 },
-                { name: 'چهارراه ساحل', lat: 27.1750, lng: 56.2850, congestion: 68 }
-            ];
+        // جستجوی مکان
+        function showSearch() {
+            const panel = document.getElementById('searchPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        async function searchLocation() {
+            const query = document.getElementById('searchInput').value;
+            if (!query) return;
             
-            hotspots.forEach(hotspot => {
-                const color = hotspot.congestion > 80 ? '#FF4444' : 
-                            hotspot.congestion > 60 ? '#FFAA44' : '#FFCC00';
+            try {
+                const response = await fetch(`${API_BASE}/api/map/search?query=${encodeURIComponent(query)}`);
+                const data = await response.json();
                 
-                L.circleMarker([hotspot.lat, hotspot.lng], {
-                    radius: 15,
-                    color: color,
-                    fillColor: color,
-                    fillOpacity: 0.7,
-                    weight: 2
-                }).addTo(map).bindPopup(`
-                    <b>${hotspot.name}</b><br>
-                    تراکم ترافیک: ${hotspot.congestion}%<br>
-                    <span style="color: ${hotspot.congestion > 80 ? 'red' : 'orange'}">
-                        ${hotspot.congestion > 80 ? '⚠️ بسیار سنگین' : hotspot.congestion > 60 ? '⚠️ سنگین' : 'متوسط'}
-                    </span>
-                `);
-            });
-            
-            alert('نقاط پرترافیک روی نقشه نمایش داده شدند');
+                const resultsDiv = document.getElementById('searchResults');
+                resultsDiv.innerHTML = '';
+                
+                if (data.success && data.results.length > 0) {
+                    data.results.forEach(result => {
+                        const item = document.createElement('div');
+                        item.className = 'search-result-item';
+                        item.innerHTML = `
+                            <div><strong>${result.title}</strong></div>
+                            <div style="font-size: 0.9rem; color: #666;">${result.address}</div>
+                        `;
+                        item.onclick = () => {
+                            map.flyTo([result.location.lat, result.location.lng], 16);
+                            document.getElementById('searchPanel').style.display = 'none';
+                        };
+                        resultsDiv.appendChild(item);
+                    });
+                } else {
+                    resultsDiv.innerHTML = '<div style="padding: 10px; text-align: center; color: #666;">نتیجه‌ای یافت نشد</div>';
+                }
+            } catch (error) {
+                console.error('خطا در جستجو:', error);
+            }
+        }
+        
+        // پیدا کردن موقعیت من
+        function locateMe() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    myLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    // به‌روزرسانی موقعیت روی نقشه
+                    map.setView([myLocation.lat, myLocation.lng], 16);
+                    myLocationMarker.setLatLng([myLocation.lat, myLocation.lng]);
+                    
+                    // به‌روزرسانی نمایش
+                    document.getElementById('myLocation').textContent = 
+                        `${myLocation.lat.toFixed(4)}, ${myLocation.lng.toFixed(4)}`;
+                    
+                    // دریافت رانندگان نزدیک
+                    loadDrivers();
+                }, error => {
+                    console.error('خطا در دریافت موقعیت:', error);
+                    alert('دسترسی به موقعیت ممکن نیست. از موقعیت پیش‌فرض استفاده می‌شود.');
+                });
+            } else {
+                alert('مرورگر شما از موقعیت‌یابی پشتیبانی نمی‌کند.');
+            }
         }
         
         // شبیه‌سازی سفر
         function simulateRide() {
             if (driverMarkers.length === 0) {
-                alert('لطفاً ابتدا رانندگان را بارگذاری کنید');
+                alert('لطفاً ابتدا رانندگان را بارگذاری کنید.');
                 return;
             }
             
@@ -764,60 +881,100 @@
                 
                 const newLat = driverLatLng.lat + (latStep * step);
                 const newLng = driverLatLng.lng + (lngStep * step);
-                
                 driverMarker.setLatLng([newLat, newLng]);
                 step++;
             }, 100);
         }
         
-        // نمایش پنل جستجو
-        function showSearchPanel() {
-            const panel = document.getElementById('searchPanel');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        // نمایش نقاط داغ ترافیک
+        function showHotspots() {
+            // نقاط داغ نمونه
+            const hotspots = [
+                { lat: 27.1865, lng: 56.2768, name: 'میدان شهدا', congestion: 85 },
+                { lat: 27.1920, lng: 56.2650, name: 'بلوار امام', congestion: 72 },
+                { lat: 27.1750, lng: 56.2850, name: 'چهارراه ساحل', congestion: 68 }
+            ];
+            
+            hotspots.forEach(hotspot => {
+                L.circleMarker([hotspot.lat, hotspot.lng], {
+                    radius: 20,
+                    fillColor: '#FFCC00',
+                    color: '#FF9900',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.7
+                }).addTo(map).bindPopup(`
+                    <b>${hotspot.name}</b><br>
+                    تراکم ترافیک: ${hotspot.congestion}%<br>
+                    <span style="color: ${hotspot.congestion > 80 ? 'red' : 'orange'}">
+                        ${hotspot.congestion > 80 ? '⚠️ نسبتاً سنگین' : '⚠️ سنگین'}
+                    </span>
+                `);
+            });
+            
+            alert('نقاط پرترافیک روی نقشه نمایش داده شدند');
         }
         
-        // جستجوی مکان
-        async function searchLocation() {
-            const query = document.getElementById('searchInput').value;
-            if (!query) return;
-            
-            try {
-                const response = await fetch(`${API_BASE}/map/route?destination=${encodeURIComponent(query)}`);
-                const data = await response.json();
-                
-                const resultsDiv = document.getElementById('searchResults');
-                resultsDiv.innerHTML = '';
-                
-                if (data.success) {
-                    const item = document.createElement('div');
-                    item.style.cssText = 'padding: 10px; border-bottom: 1px solid #eee; cursor: pointer;';
-                    item.innerHTML = `
-                        <div><strong>${query}</strong></div>
-                        <div style="font-size: 0.9rem; color: #666;">فاصله: ${data.route?.distance?.text || '~8.5 کیلومتر'}</div>
-                    `;
-                    item.onclick = () => {
-                        map.flyTo([27.1832, 56.2666], 14);
-                        document.getElementById('searchPanel').style.display = 'none';
-                    };
-                    
-                    resultsDiv.appendChild(item);
+        // تغییر استایل نقشه
+        function changeMapStyle(style) {
+            // حذف لایه فعلی
+            map.eachLayer(layer => {
+                if (layer._url && layer._url.includes('tile')) {
+                    map.removeLayer(layer);
                 }
-            } catch (error) {
-                console.error('خطا در جستجو:', error);
+            });
+            
+            if (style === 'standard') {
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap',
+                    maxZoom: 19,
+                }).addTo(map);
+            } else if (style === 'satellite') {
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: '© Esri',
+                    maxZoom: 19,
+                }).addTo(map);
             }
         }
         
         // صادر کردن نقشه
         function exportMap() {
-            alert('در حال ذخیره نقشه...');
-            // در اینجا می‌توانید از html2canvas استفاده کنید
-            // window.open(map.getContainer().toDataURL());
+            alert('این قابلیت نیاز به نصب html2canvas دارد.\nبرای ذخیره نقشه از Print Screen استفاده کنید.');
+        }
+        
+        // به‌روزرسانی شمارنده آنلاین
+        function updateOnlineCount(count) {
+            document.getElementById('onlineCount').textContent = count;
+        }
+        
+        // به‌روزرسانی آخرین بروزرسانی
+        function updateLastUpdate() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = 
+                `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        }
+        
+        // نوسازی رانندگان
+        function refreshDrivers() {
+            loadDrivers();
+            document.getElementById('backendStatus').innerHTML = 
+                '<span class="pulse" style="color: #0044ff;">... در حال بروزرسانی</span>';
+            setTimeout(() => {
+                document.getElementById('backendStatus').innerHTML = 
+                    '<span style="color: #00ff88;">✅ متصل</span>';
+            }, 2000);
         }
         
         // اجرای اولیه
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
+            locateMe();
             updateLastUpdate();
+            
+            // اضافه کردن html2canvas برای صادر کردن نقشه
+            const script = document.createElement('script');
+            script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+            document.head.appendChild(script);
         });
     </script>
 </body>

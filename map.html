@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نقشه - HDP</title>
+    <style>
+        body {
+            font-family: Tahoma;
+            padding: 20px;
+            margin: 0;
+        }
+        .map-container {
+            width: 100%;
+            height: 400px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .location {
+            background: white;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>🗺️ نقشه تاکسی‌های HDP</h1>
+    <p>موقعیت رانندگان بر روی نقشه</p>
+    
+    <div class="map-container">
+        <div style="text-align: center;">
+            <div style="font-size: 4rem;">🗺️</div>
+            <p>نقشه تعاملی</p>
+            <small>(برای نسخه کامل نیاز به API Key نقشه دارید)</small>
+        </div>
+    </div>
+    
+    <div class="location">
+        <h3>📍 موقعیت‌های نمونه:</h3>
+        <ul>
+            <li>بندرعباس مرکز - ۲ تاکسی آنلاین</li>
+            <li>فرودگاه - ۱ تاکسی آنلاین</li>
+            <li>ساحل سورو - ۳ تاکسی آنلاین</li>
+            <li>بلوار امام رضا - ۲ تاکسی آنلاین</li>
+        </ul>
+    </div>
+    
+    <div class="location">
+        <h3>📡 اطلاعات بلادرنگ:</h3>
+        <button onclick="getLiveData()">دریافت داده زنده</button>
+        <div id="live-data" style="margin-top: 10px;"></div>
+    </div>
+    
+    <script>
+        async function getLiveData() {
+            try {
+                const response = await fetch('http://localhost:8000/api/health');
+                const data = await response.json();
+                
+                document.getElementById('live-data').innerHTML = `
+                    <div style="background: #e3f2fd; padding: 10px; border-radius: 5px;">
+                        <p><strong>وضعیت سیستم:</strong> ${data.status}</p>
+                        <p><strong>زمان:</strong> ${new Date(data.timestamp).toLocaleTimeString('fa-IR')}</p>
+                        <p><strong>سرور:</strong> ${data.server}</p>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('live-data').innerHTML = `
+                    <div style="background: #ffebee; padding: 10px; border-radius: 5px;">
+                        ❌ خطا در دریافت داده
+                    </div>
+                `;
+            }
+        }
+        
+        // بارگذاری اولیه
+        getLiveData();
+    </script>
+</body>
+</html>

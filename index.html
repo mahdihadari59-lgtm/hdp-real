@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>هرمزگان درایور پرو - HDP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            color: #00A693;
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        
+        .status-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .online { background: #00ff88; }
+        .offline { background: #ff4444; }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            border-color: #00A693;
+            transform: translateY(-5px);
+        }
+        
+        .card h3 {
+            color: #00A693;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #00A693, #00D4AA);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 166, 147, 0.3);
+        }
+        
+        .btn-red {
+            background: linear-gradient(135deg, #ff4444, #ff6b6b);
+        }
+        
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .service-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .service-card:hover {
+            background: rgba(0, 166, 147, 0.1);
+            border-color: #00A693;
+            transform: translateY(-5px);
+        }
+        
+        .service-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .data-panel {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚕 هرمزگان درایور پرو</h1>
+            <p class="subtitle">سیستم هوشمند مدیریت تاکسی‌های بندرعباس</p>
+            
+            <div class="status-card">
+                <h3>وضعیت سیستم</h3>
+                <div id="system-status">
+                    <span class="status-indicator offline"></span>
+                    در حال بررسی...
+                </div>
+            </div>
+        </header>
+        
+        <div class="dashboard">
+            <div class="card">
+                <h3>📊 کنترل سیستم</h3>
+                <p>مدیریت سرویس‌های HDP</p>
+                <div style="margin-top: 20px;">
+                    <button class="btn" onclick="checkSystem()">بررسی وضعیت</button>
+                    <button class="btn" onclick="testBackend()">تست Backend</button>
+                    <button class="btn btn-red" onclick="showLogs()">مشاهده لاگ</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🔧 مدیریت API</h3>
+                <p>کنترل endpoints</p>
+                <div style="margin-top: 20px;">
+                    <button class="btn" onclick="testHealth()">Health Check</button>
+                    <button class="btn" onclick="getStats()">دریافت آمار</button>
+                    <button class="btn" onclick="clearData()">پاک کردن داده</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>📁 دسترسی سریع</h3>
+                <p>صفحات و ابزارها</p>
+                <div style="margin-top: 20px;">
+                    <button class="btn" onclick="openAdmin()">پنل مدیریت</button>
+                    <button class="btn" onclick="openBooking()">رزرو تاکسی</button>
+                    <button class="btn" onclick="openMap()">نقشه</button>
+                </div>
+            </div>
+        </div>
+        
+        <h2>🔗 سرویس‌های سیستم</h2>
+        <div class="service-grid">
+            <a href="/admin.html" class="service-card">
+                <div class="service-icon">👨‍💼</div>
+                <h3>پنل مدیریت</h3>
+                <p>مدیریت رانندگان و سفرها</p>
+            </a>
+            
+            <a href="/booking.html" class="service-card">
+                <div class="service-icon">🚗</div>
+                <h3>رزرو تاکسی</h3>
+                <p>درخواست سفر جدید</p>
+            </a>
+            
+            <a href="/map.html" class="service-card">
+                <div class="service-icon">🗺️</div>
+                <h3>نقشه</h3>
+                <p>مشاهده موقعیت‌ها</p>
+            </a>
+            
+            <a href="http://localhost:8000/docs" target="_blank" class="service-card">
+                <div class="service-icon">📚</div>
+                <h3>مستندات API</h3>
+                <p>مستندات کامل Backend</p>
+            </a>
+        </div>
+        
+        <div id="result-panel" class="data-panel">
+            <p>نتیجه عملیات اینجا نمایش داده می‌شود...</p>
+        </div>
+        
+        <footer>
+            <p>هرمزگان درایور پرو - نسخه ۲.۰.۰</p>
+            <p>Backend: http://localhost:8000 | Frontend: http://localhost:3000</p>
+            <p>© ۲۰۲۴ - تمامی حقوق محفوظ است</p>
+        </footer>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:8000';
+        const FRONTEND_URL = 'http://localhost:3000';
+        
+        // توابع اصلی
+        async function checkSystem() {
+            showLoading('در حال بررسی سیستم...');
+            
+            try {
+                // تست Backend
+                const backendRes = await fetch(API_URL + '/api/health');
+                const backendData = await backendRes.json();
+                
+                // تست Frontend
+                const frontendRes = await fetch(FRONTEND_URL);
+                
+                // بروزرسانی وضعیت
+                const statusEl = document.getElementById('system-status');
+                statusEl.innerHTML = `
+                    <span class="status-indicator online"></span>
+                    سیستم فعال
+                    <br>
+                    <small style="color: #aaa;">
+                        Backend: ${backendData.status} | Frontend: ${frontendRes.ok ? 'فعال' : 'مشکل'}
+                    </small>
+                `;
+                
+                showResult('✅ سیستم سالم است', {
+                    backend: backendData,
+                    frontend: frontendRes.ok ? 'active' : 'inactive',
+                    timestamp: new Date().toLocaleString('fa-IR')
+                });
+                
+            } catch (error) {
+                document.getElementById('system-status').innerHTML = `
+                    <span class="status-indicator offline"></span>
+                    سیستم غیرفعال
+                `;
+                showError('خطا در بررسی سیستم', error);
+            }
+        }
+        
+        async function testBackend() {
+            try {
+                showLoading('در حال تست Backend...');
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                showResult('✅ Backend فعال', data);
+            } catch (error) {
+                showError('❌ Backend پاسخ نمی‌دهد', error);
+            }
+        }
+        
+        async function testHealth() {
+            try {
+                showLoading('در حال بررسی سلامت...');
+                const response = await fetch(API_URL + '/api/health');
+                const data = await response.json();
+                showResult('✅ وضعیت سلامت', data);
+            } catch (error) {
+                showError('خطا در بررسی سلامت', error);
+            }
+        }
+        
+        async function getStats() {
+            try {
+                showLoading('در حال دریافت آمار...');
+                const response = await fetch(API_URL + '/api/stats');
+                const data = await response.json();
+                showResult('📊 آمار سیستم', data);
+            } catch (error) {
+                // اگر endpoint stats وجود ندارد، از health استفاده کن
+                const response = await fetch(API_URL + '/api/health');
+                const data = await response.json();
+                showResult('📊 اطلاعات سیستم', data);
+            }
+        }
+        
+        function clearData() {
+            if (confirm('آیا مطمئن هستید؟ این عمل داده‌های نمایشی را پاک می‌کند.')) {
+                localStorage.removeItem('hdp-data');
+                showResult('🧹 داده‌های محلی پاک شدند', {cleared: true});
+            }
+        }
+        
+        function showLogs() {
+            showResult('📋 لاگ‌های سیستم', {
+                backend: 'برای مشاهده لاگ‌ها: pm2 logs hdp',
+                frontend: 'برای مشاهده لاگ‌ها: tail -f frontend.log',
+                time: new Date().toLocaleString('fa-IR')
+            });
+        }
+        
+        function openAdmin() {
+            window.open('/admin.html', '_blank');
+        }
+        
+        function openBooking() {
+            window.open('/booking.html', '_blank');
+        }
+        
+        function openMap() {
+            window.open('/map.html', '_blank');
+        }
+        
+        // توابع کمکی
+        function showLoading(message) {
+            document.getElementById('result-panel').innerHTML = `
+                <p>⏳ ${message}</p>
+            `;
+        }
+        
+        function showResult(title, data) {
+            let html = `<h4>${title}</h4>`;
+            
+            if (typeof data === 'object') {
+                html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } else {
+                html += `<p>${data}</p>`;
+            }
+            
+            document.getElementById('result-panel').innerHTML = html;
+        }
+        
+        function showError(title, error) {
+            document.getElementById('result-panel').innerHTML = `
+                <h4 style="color: #ff6b6b;">${title}</h4>
+                <pre style="color: #ff9999;">${error.message || error}</pre>
+            `;
+        }
+        
+        // بررسی خودکار هنگام بارگذاری صفحه
+        window.onload = function() {
+            checkSystem();
+            
+            // بروزرسانی خودکار هر 30 ثانیه
+            setInterval(checkSystem, 30000);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل مدیریت - HDP</title>
+    <style>
+        body {
+            font-family: Tahoma;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #1a2980;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            margin: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>👨‍💼 پنل مدیریت HDP</h1>
+        <p>مدیریت رانندگان و سفرها</p>
+    </div>
+    
+    <div class="card">
+        <h3>رانندگان</h3>
+        <button onclick="loadDrivers()">مشاهده رانندگان</button>
+        <button onclick="addDriver()">افزودن راننده</button>
+        <div id="drivers-list"></div>
+    </div>
+    
+    <div class="card">
+        <h3>سفرها</h3>
+        <button onclick="loadBookings()">مشاهده سفرها</button>
+        <button onclick="addBooking()">افزودن سفر</button>
+        <div id="bookings-list"></div>
+    </div>
+    
+    <div class="card">
+        <h3>آمار</h3>
+        <button onclick="loadStats()">بارگذاری آمار</button>
+        <div id="stats"></div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:8000';
+        
+        async function loadDrivers() {
+            try {
+                const res = await fetch(API_URL + '/api/drivers');
+                const data = await res.json();
+                document.getElementById('drivers-list').innerHTML = 
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch(e) {
+                document.getElementById('drivers-list').innerHTML = 
+                    `❌ خطا: ${e.message}`;
+            }
+        }
+        
+        async function loadBookings() {
+            try {
+                const res = await fetch(API_URL + '/api/bookings');
+                const data = await res.json();
+                document.getElementById('bookings-list').innerHTML = 
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch(e) {
+                document.getElementById('bookings-list').innerHTML = 
+                    `❌ خطا: ${e.message}`;
+            }
+        }
+        
+        async function loadStats() {
+            try {
+                const res = await fetch(API_URL + '/api/health');
+                const data = await res.json();
+                document.getElementById('stats').innerHTML = 
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch(e) {
+                document.getElementById('stats').innerHTML = 
+                    `❌ خطا: ${e.message}`;
+            }
+        }
+        
+        function addDriver() {
+            const name = prompt("نام راننده:");
+            const phone = prompt("شماره تلفن:");
+            if (name && phone) {
+                fetch(API_URL + '/api/drivers/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, phone, license_number: '123', vehicle_model: 'پراید'})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    alert('راننده اضافه شد!');
+                    loadDrivers();
+                });
+            }
+        }
+        
+        function addBooking() {
+            const passenger = prompt("نام مسافر:");
+            const phone = prompt("شماره تلفن:");
+            if (passenger && phone) {
+                fetch(API_URL + '/api/bookings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        passenger, 
+                        phone, 
+                        from: 'بندرعباس مرکز',
+                        to: 'فرودگاه'
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    alert('سفر اضافه شد!');
+                    loadBookings();
+                });
+            }
+        }
+    </script>
+</body>
+</html>
